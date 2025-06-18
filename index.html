@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Persoonlijke AI Assistent</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 p-4">
+  <div class="max-w-xl mx-auto">
+    <h1 class="text-2xl font-bold mb-4 text-center">AI Assistent voor Dagplanning & Mail</h1>
+
+    <!-- Dagplanning invoer -->
+    <div class="mb-6">
+      <label class="block mb-2 font-semibold">Wat moet je vandaag doen?</label>
+      <textarea id="dagInput" class="w-full p-2 border rounded" rows="4" placeholder="Bijv: controle bij kliniek, mail sturen naar klant X..."></textarea>
+      <button onclick="genereerDagplanning()" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Maak Dagplanning</button>
+      <div id="dagOutput" class="mt-4 p-3 bg-white border rounded"></div>
+    </div>
+
+    <!-- Mail assistent -->
+    <div>
+      <label class="block mb-2 font-semibold">Plak hier een mail of bericht:</label>
+      <textarea id="mailInput" class="w-full p-2 border rounded" rows="4" placeholder="Bijv: Goedemiddag, we willen graag een extra schoonmaakdienst aanvragen..."></textarea>
+      <button onclick="genereerMailAntwoord()" class="mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Maak Antwoord</button>
+      <div id="mailOutput" class="mt-4 p-3 bg-white border rounded"></div>
+    </div>
+  </div>
+
+  <script>
+    async function callAI(prompt) {
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer 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"
+        },
+        body: JSON.stringify({
+          model: "gpt-4",
+          messages: [{ role: "user", content: prompt }],
+          temperature: 0.7
+        })
+      });
+      const data = await response.json();
+      return data.choices[0].message.content;
+    }
+
+    async function genereerDagplanning() {
+      const input = document.getElementById("dagInput").value;
+      const prompt = `Maak een duidelijke dagplanning op basis van deze lijst met taken: ${input}. Gebruik tijden als dat mogelijk is.`;
+      document.getElementById("dagOutput").innerText = "Even bezig...";
+      const result = await callAI(prompt);
+      document.getElementById("dagOutput").innerText = result;
+    }
+
+    async function genereerMailAntwoord() {
+      const input = document.getElementById("mailInput").value;
+      const prompt = `Lees het onderstaande bericht en schrijf een vriendelijk, professioneel antwoord in correct Nederlands. Bericht: ${input}`;
+      document.getElementById("mailOutput").innerText = "Even bezig...";
+      const result = await callAI(prompt);
+      document.getElementById("mailOutput").innerText = result;
+    }
+  </script>
+</body>
+</html>
